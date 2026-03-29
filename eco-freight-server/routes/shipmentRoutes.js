@@ -9,7 +9,15 @@ router.post('/add', async (req, res) => {
     const savedShipment = await newShipment.save();
     res.status(201).json(savedShipment);
   } catch (err) {
-    res.status(400).json({ error: err.message });
+    console.error("❌ Error saving shipment:", err);
+    
+    // Check if MongoDB is throwing a "Duplicate Key" error (like a duplicate Order ID)
+    if (err.code === 11000) {
+      return res.status(400).json({ error: "Order ID already exists. Please try again to generate a new one." });
+    }
+
+    // Catch any other errors
+    res.status(400).json({ error: err.message || "An unexpected error occurred while saving." });
   }
 });
 
@@ -19,7 +27,8 @@ router.get('/all', async (req, res) => {
     const shipments = await Shipment.find().sort({ createdAt: -1 });
     res.json(shipments);
   } catch (err) {
-    res.status(500).json({ error: err.message });
+    console.error("❌ Error fetching shipments:", err);
+    res.status(500).json({ error: "Failed to fetch shipments from the database." });
   }
 });
 

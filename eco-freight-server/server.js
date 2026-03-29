@@ -8,23 +8,19 @@ const shipmentRoutes = require('./routes/shipmentRoutes');
 const app = express();
 
 // Middleware
-// cors() without options allows all origins, which is perfect for letting Vercel connect
 app.use(cors()); 
 app.use(express.json());
 
 // Routes
 app.use('/api/shipments', shipmentRoutes);
 
-// Health check route so Render knows the server is awake
-app.get('/', (req, res) => res.send('Eco-Freight API Online'));
+// Health check
+app.get('/', (req, res) => res.send('Eco-Freight API Online (Vercel Edition)'));
 
-// Define the port for Render (or 5001 for local)
-const PORT = process.env.PORT || 5001;
-
-// Cloud DB Connection
+// Connect to Database
 mongoose.connect(process.env.MONGODB_URI)
-  .then(() => {
-    console.log('✅ MongoDB Connected Successfully');
-    app.listen(PORT, () => console.log(`🚀 Server running on port ${PORT}`));
-  })
+  .then(() => console.log('✅ MongoDB Connected'))
   .catch(err => console.error('❌ Database Connection Error:', err));
+
+// VERCEL FIX: Instead of app.listen(), we export the app!
+module.exports = app;
